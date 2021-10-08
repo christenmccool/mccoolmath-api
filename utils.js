@@ -1,0 +1,8 @@
+/** Get a random number between a min and max */
+function getRand(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min
+}
+
+module.exports = {
+    getRand
+}
