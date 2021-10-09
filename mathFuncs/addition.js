@@ -8,8 +8,8 @@ class AdditionProblem {
         return this.num1 + this.num2;
     }
 
-    getLatexExpression() {
-        return 
+    getLatexExp() {
+        return `${this.num1}+${this.num2}`
     }
 
     static getParams() {

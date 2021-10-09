@@ -3,6 +3,10 @@ function getRand(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min
 }
 
-module.exports = {
-    getRand
+function getRandChoice(arr) {
+    const ind = getRand(0, arr.length - 1)
+    return arr[ind];
 }
+  
+  
+module.exports = {getRand, getRandChoice};

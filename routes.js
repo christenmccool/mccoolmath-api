@@ -4,10 +4,107 @@ const express = require("express");
 
 const { BadRequestError } = require("./expressError");
 
+const Problem = require('./mathFuncs/problem');
+const AdditionProblem = require('./mathFuncs/addition');
+const SubtractionProblem = require('./mathFuncs/subtraction');
+const MultiplicationProblem = require('./mathFuncs/multiplication');
+const DivisionProblem = require('./mathFuncs/division');
 const LinearEquation = require("./mathFuncs/linearEq");
-const IntegerOp = require("./mathFuncs/integerOp");
+const Utils = require('./utils')
+
 
 const router = new express.Router();
+
+/** GET /integerop/[op]  => { Problem }
+ * op can be 'add', 'sub', 'mult', or 'div'
+ * 
+ * returns Problem data
+ *
+ * Problem is {probType, exp, args}
+ */
+
+ router.get("/integerop/:op", async function (req, res, next) {
+   const probTypes = {
+     "add": AdditionProblem,
+     "sub": SubtractionProblem,
+     "mult": MultiplicationProblem,
+     "div": DivisionProblem
+  }
+
+  try {
+    const {op} = req.params;
+    const validOps = Object.keys(probTypes);
+    if (validOps.indexOf(op) === -1) {
+      throw new BadRequestError("Invalid operation")
+    }
+    const newProb = Problem.createProblem(probTypes[op]);
+
+    return res.json(newProb.data());
+  } catch (err) {
+    return next(err);
+  }
+});
+
+/** GET /integerop  => { Problem }
+ * 
+ * returns Problem data
+ * can be an addition, subtraction, multiplication, or division problem
+ *
+ * Problem is {probType, exp, args}
+ */
+
+ router.get("/integerop", async function (req, res, next) {
+
+    const probTypes = [
+        AdditionProblem,
+        SubtractionProblem,
+        MultiplicationProblem,
+        DivisionProblem
+    ];
+     
+    const probType = Utils.getRandChoice(probTypes);
+
+    try {
+        const newProb = Problem.createProblem(probType);
+         
+        return res.json(newProb.data());
+    } catch (err) {
+        return next(err);
+    }
+});
+
+
+/** POST /integerop  { probType, args, answer} => { correct }
+ *
+ * takes a problemType and arguments to create a Problem as well as an answer
+ * 
+ * returns whether the answer is correct
+ */
+
+ router.post("/integerop", async function (req, res, next) {
+
+    const {probType, args, answer} = req.body;
+
+    const probTypes = {
+        "AdditionProblem": AdditionProblem,
+        "SubtractionProblem": SubtractionProblem,
+        "MultiplicationProblem": MultiplicationProblem,
+        "DivisionProblem": DivisionProblem
+     }
+
+    try {
+        const problemType = probTypes[probType];
+        const newProb = new Problem(problemType, args);
+        const correct = newProb.answer() === answer;
+
+        return res.json({correct});
+    } catch (err) {
+        return next(err);
+    }
+});
+
+
+
 
 
 /** GET /lineareq  => { linearEquation }
@@ -27,52 +124,6 @@ router.get("/lineareq", async function (req, res, next) {
     //   expression: newEq.exp,
     // });
     return res.json(newEq);
-  } catch (err) {
-    return next(err);
-  }
-});
-
-
-/** GET /integerop/[op]  => { integerOp }
- *
- * returns an Integer Operation problem object
- * op can be 'add', 'sub', 'mult', or 'div'
- *
- * integerOp is {op, num1, num2, answer, exp}
- *
- */
-
- router.get("/integerop/:op", async function (req, res, next) {
-  try {
-    // const {op} = req.params;
-    // const validOps = ['add', 'sub', 'mult', 'div'];
-    // if (!validOps.find(op)) {
-    //   throw new BadRequestError("Invalid operation")
-    // }    
-    // const newProb = new IntegerOp(op,-10,10);
-
-    const newProb = new IntegerOp(req.params.op,-10,10);
-    return res.json(newProb);
-  } catch (err) {
-    return next(err);
-  }
-});
-
-/** GET /integerop  => { integerOp }
- *
- * returns an Integer Operation problem object
- * object can be an addition, subtraction, multiplication, or division problem
- *
- * integerOp is {op, num1, num2, answer, exp}
- *
- */
-
- router.get("/integerop", async function (req, res, next) {
-  try {
-    const op = ['add','sub','mult','div'][Math.floor(Math.random() * 4)];
-    const newProb = new IntegerOp(op,-10,10);
-
-    return res.json(newProb);
   } catch (err) {
     return next(err);
   }
