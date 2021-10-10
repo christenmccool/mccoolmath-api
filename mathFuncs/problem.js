@@ -10,7 +10,7 @@ class Problem {
     constructor(problemType, args) {
         this.args = args;
         this.problemType = problemType;
-        this.problem = new problemType(...args);
+        this.problem = new problemType(args);
     }
 
     answer() {
@@ -28,26 +28,27 @@ class Problem {
             exp: this.getLatexExp()        }
     }
 
-    static createProblem(problemType) {
+    static createProblem(problemType, problemParams) {
         if(VALID_PROBLEM_TYPES.indexOf(problemType) === -1 ) {
             throw new Error('Invalid Problem Type');
         }
-
-        const params = problemType.getParams();
-        const args = [];
-        for(const param in params) {
-            switch (params[param]) {
-                case 'integer':
-                    args.push(Utils.getRand(-10, 10));
-                    break;
-                case 'dividendDivisor':
-                    const divisor = Utils.getRand(-10, 10);
-                    const quotient = Utils.getRand(-10, 10);
-                    const dividend = divisor * quotient;
-                    args.push(dividend);
-                    args.push(divisor);
-            }
-        }
+        const probParams = problemParams || [];
+        const args = problemType.getArgs(...probParams);
+        // const params = problemType.getParams();
+        // const args = [];
+        // for(const param in params) {
+        //     switch (params[param]) {
+        //         case 'integer':
+        //             args.push(Utils.getRand(-10, 10));
+        //             break;
+        //         case 'dividendDivisor':
+        //             const divisor = Utils.getRand(-10, 10);
+        //             const quotient = Utils.getRand(-10, 10);
+        //             const dividend = divisor * quotient;
+        //             args.push(dividend);
+        //             args.push(divisor);
+        //     }
+        // }
         return new Problem(problemType, args);
     }
 }

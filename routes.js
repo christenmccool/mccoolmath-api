@@ -30,15 +30,14 @@ const router = new express.Router();
      "mult": MultiplicationProblem,
      "div": DivisionProblem
   }
-
   try {
     const {op} = req.params;
     const validOps = Object.keys(probTypes);
     if (validOps.indexOf(op) === -1) {
       throw new BadRequestError("Invalid operation")
     }
+    // const newProb = Problem.createProblem(probTypes[op], [3,-5,5]);
     const newProb = Problem.createProblem(probTypes[op]);
-
     return res.json(newProb.data());
   } catch (err) {
     return next(err);
@@ -66,7 +65,6 @@ const router = new express.Router();
 
     try {
         const newProb = Problem.createProblem(probType);
-         
         return res.json(newProb.data());
     } catch (err) {
         return next(err);
@@ -95,9 +93,9 @@ const router = new express.Router();
     try {
         const problemType = probTypes[probType];
         const newProb = new Problem(problemType, args);
-        const correct = newProb.answer() === answer;
+        const correct = newProb.answer() === +answer;
 
-        return res.json({correct});
+        return res.json({status: correct ? 'correct':'incorrect'});
     } catch (err) {
         return next(err);
     }
