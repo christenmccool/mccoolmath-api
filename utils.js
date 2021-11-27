@@ -3,17 +3,21 @@ function getRand(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min
 }
 
+function getRandNeg(min) {
+    return Math.floor(Math.random() * (-1 - min + 1)) + min
+}
+
 function getRandChoice(arr) {
     const ind = getRand(0, arr.length - 1)
     return arr[ind];
 }
   
-function ensureOneNeg(arr) {
+function ensureOneNeg(arr, min=-10) {
     const nums = [...arr];
     const negNums = nums.filter(ele => ele < 0);
     if (negNums.length === 0) {
         const ind = getRand(0, nums.length - 1);
-        nums[ind] = nums[ind] * -1;
+        nums[ind] = nums[ind] ? nums[ind] * -1 : getRandNeg(min);
     }
     return nums;
 }
@@ -41,33 +45,9 @@ function getNRandInts(n, min, max, requireNeg, limitZero=false) {
     }
 
     if (requireNeg) {
-        nums = ensureOneNeg(nums);
+        nums = ensureOneNeg(nums, min);
     }
     return nums;
 }
   
-function getSum(arr) {
-    return arr.reduce((accum, next) => accum + next)
-}
-
-function getDiff(arr) {
-    return arr.reduce((accum, next) => accum - next)
-}
-
-function getProd(arr) {
-    return arr.reduce((accum, next) => accum * next)
-}
-
-function getQuot(arr) {
-    return arr.reduce((accum, next) => accum / next)
-}
-
-
-function intExpConcat(nums, sym, withParens=true) {
-    return nums.reduce((accum, ele, i) => {
-        const next = (withParens && i>0 && ele < 0) ? `(${ele})` : ele;
-        return accum + `${sym}${next}`;
-    })
-}
-
-module.exports = {getRand, getRandChoice, ensureOneNeg, getNRandInts, getSum, getDiff, getProd, getQuot, intExpConcat};
+module.exports = {getRand, getRandChoice, ensureOneNeg, getNRandInts};

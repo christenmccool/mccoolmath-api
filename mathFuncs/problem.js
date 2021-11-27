@@ -1,15 +1,17 @@
-const AdditionProblem = require('./addition');
-const SubtractionProblem = require('./subtraction');
-const MultiplicationProblem = require('./multiplication');
-const DivisionProblem = require('./division');
+const IntegerProblem = require('./integers');
+const OrderOfOpsProblem = require('./orderofops');
+
 const Utils = require('../utils')
 
-const VALID_PROBLEM_TYPES = [AdditionProblem, SubtractionProblem, MultiplicationProblem, DivisionProblem];
+const VALID_PROBLEM_TYPES = [
+                                IntegerProblem,
+                                OrderOfOpsProblem
+                            ];
 
 class Problem {
     constructor(problemType, args) {
-        this.args = args;
         this.problemType = problemType;
+        this.args = args;
         this.problem = new problemType(args);
     }
 
@@ -17,15 +19,16 @@ class Problem {
         return this.problem.answer();
     }
 
-    getLatexExp() {
-        return this.problem.getLatexExp();
+    latex() {
+        return this.problem.latex();
     }
 
     data() {
         return {
             problemType: this.problem.constructor.name,
             args: this.args,
-            exp: this.getLatexExp()        }
+            latex: this.latex()        
+        }
     }
 
     static createProblem(problemType, problemParams) {
@@ -34,21 +37,6 @@ class Problem {
         }
         const probParams = problemParams || [];
         const args = problemType.getArgs(...probParams);
-        // const params = problemType.getParams();
-        // const args = [];
-        // for(const param in params) {
-        //     switch (params[param]) {
-        //         case 'integer':
-        //             args.push(Utils.getRand(-10, 10));
-        //             break;
-        //         case 'dividendDivisor':
-        //             const divisor = Utils.getRand(-10, 10);
-        //             const quotient = Utils.getRand(-10, 10);
-        //             const dividend = divisor * quotient;
-        //             args.push(dividend);
-        //             args.push(divisor);
-        //     }
-        // }
         return new Problem(problemType, args);
     }
 }
