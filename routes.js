@@ -24,7 +24,7 @@ const router = new express.Router();
 
     let {type} = req.query;
 
-    if (!type) {
+    if (!type || type==="all") {
         type = Utils.getRandChoice(['add', 'sub', 'mult', 'div']);
     } else {
         const tyoeArr = type.split(",");     
@@ -91,7 +91,6 @@ router.post("/integers", async function (req, res, next) {
 router.post("/orderofops", async function (req, res, next) {
 
     const {problemType, args, answer, returnAnswer} = req.body;
-    console.log(probType, args, answer, returnAnswer)
 
     try {
         const newProb = new Problem(OrderOfOpsProblem, args);
