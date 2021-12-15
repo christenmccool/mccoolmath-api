@@ -18,6 +18,10 @@ class IntegerProblem {
         }
     }
 
+    checkCorrect(ans) { 
+        return ans === this.answer();
+    }
+
     latex() {
         switch (this.op) {
             case "add":    

@@ -1,11 +1,14 @@
 const IntegerProblem = require('./integers');
-const OrderOfOpsProblem = require('./orderofops');
+const OrderOfOpsProblem = require('./orderOfOps');
+const LinearEqnProblem = require('./linearEqn');
+
 
 const Utils = require('../utils')
 
 const VALID_PROBLEM_TYPES = [
                                 IntegerProblem,
-                                OrderOfOpsProblem
+                                OrderOfOpsProblem,
+                                LinearEqnProblem
                             ];
 
 class Problem {
@@ -19,6 +22,11 @@ class Problem {
         return this.problem.answer();
     }
 
+    checkCorrect(answer) {
+        if (answer === null) return null;
+        return this.problem.checkCorrect(answer);
+    }
+
     latex() {
         return this.problem.latex();
     }
@@ -27,7 +35,8 @@ class Problem {
         return {
             problemType: this.problem.constructor.name,
             args: this.args,
-            latex: this.latex()        
+            latex: this.latex(),
+            answer: this.answer()      
         }
     }
 

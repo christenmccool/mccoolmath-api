@@ -24,6 +24,10 @@ class OrderOfOpsProblem {
         return eval(exp);
     }
 
+    checkCorrect(ans) { 
+        return ans === this.answer();
+    }
+
     latex() {
         const symbols = {
             "add": "+",
@@ -44,8 +48,9 @@ class OrderOfOpsProblem {
             if (this.ops[i-1] === 'exp') {
                 nextTerm = `{${this.nums[i]}}`;
             }
-            // latex += (i>0 && this.nums[i] < 0 && (this.ops[i-1] === 'add' || this.ops[i-1] === 'sub')) ? `(${this.nums[i]})` : `${this.nums[i]}`;
+            
             latex += nextTerm;
+
             if (i < this.nums.length - 1) {
                 latex += symbols[this.ops[i]];
             }

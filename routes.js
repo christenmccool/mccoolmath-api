@@ -5,9 +5,9 @@ const express = require("express");
 const { BadRequestError } = require("./expressError");
 
 const Problem = require('./mathFuncs/problem');
-// const LinearEquation = require("./mathFuncs/linearEq");
 const IntegerProblem = require('./mathFuncs/integers');
-const OrderOfOpsProblem = require('./mathFuncs/orderofops');
+const OrderOfOpsProblem = require('./mathFuncs/orderOfOps');
+const LinearEqnProblem = require('./mathFuncs/linearEqn');
 const Utils = require('./utils');
 
 
@@ -27,8 +27,8 @@ const router = new express.Router();
     if (!type || type==="all") {
         type = Utils.getRandChoice(['add', 'sub', 'mult', 'div']);
     } else {
-        const tyoeArr = type.split(",");     
-        type = Utils.getRandChoice(tyoeArr);
+        const typeArr = type.split(",");     
+        type = Utils.getRandChoice(typeArr);
     }
 
     try {
@@ -51,11 +51,12 @@ router.post("/integers", async function (req, res, next) {
     try {
         const newProb = new Problem(IntegerProblem, args);
 
-        if (returnAnswer===true) {
-            return res.json({correctAnswer: newProb.answer()})
+        const correct = newProb.checkCorrect(+answer);
+        
+        if (returnAnswer===true && (answer === null || correct)) {
+            return res.json({correctAnswer: newProb.answer(), status: correct ? 'correct':'incorrect'});
         }
 
-        const correct = newProb.answer() === +answer;
         return res.json({status: correct ? 'correct':'incorrect'});
 
     } catch (err) {
@@ -63,13 +64,13 @@ router.post("/integers", async function (req, res, next) {
     }
 });
 
-
 /** GET /orderofops  => { Problem }
  *
  * Problem is {problemType, latex, args}
  */
  router.get("/orderofops", async function (req, res, next) {
     let {n} = req.query;
+    
     if (!n) {
         n = 4;
     }
@@ -95,11 +96,12 @@ router.post("/orderofops", async function (req, res, next) {
     try {
         const newProb = new Problem(OrderOfOpsProblem, args);
 
-        if (returnAnswer===true) {
-            return res.json({correctAnswer: newProb.answer()})
+        const correct = newProb.checkCorrect(+answer);
+
+        if (returnAnswer===true && (answer === null || correct)) {
+            return res.json({correctAnswer: newProb.answer(), status: correct ? 'correct':'incorrect'});
         }
 
-        const correct = newProb.answer() === +answer;
         return res.json({status: correct ? 'correct':'incorrect'});
 
     } catch (err) {
@@ -108,8 +110,53 @@ router.post("/orderofops", async function (req, res, next) {
 });
 
 
+/** GET /lineareqn  => { Problem }
+ * 
+ * returns Problem data
+ *
+ * Problem is {problemType, latex, args}
+ */
 
+ router.get("/lineareqn", async function (req, res, next) {
+    let {type} = req.query;
 
+    if (!type) {
+        type = "graph"
+    }
+
+    try {
+        const newProb = Problem.createProblem(LinearEqnProblem, [type]);
+
+        return res.json(newProb.data());
+    } catch (err) {
+        return next(err);
+    }
+});
+
+/** POST /lineareqn  => { status }
+ * 
+ * status is 'correct' or 'incorrect'
+ */
+
+ router.post("/lineareqn", async function (req, res, next) {
+
+    const {problemType, args, answer, returnAnswer} = req.body;
+
+    try {
+        const newProb = new Problem(LinearEqnProblem, args);
+
+        const correct = newProb.checkCorrect(answer);
+
+        if (returnAnswer===true && (answer === null || correct)) {
+            return res.json({correctAnswer: newProb.answer(), status: correct ? 'correct':'incorrect'})
+        }
+
+        return res.json({status: correct ? 'correct':'incorrect'});
+
+    } catch (err) {
+        return next(err);
+    }
+});
 
 
 
