@@ -1,5 +1,5 @@
 const IntegerProblem = require('./integers');
-const OrderOfOpsProblem = require('./porderOfOps');
+const OrderOfOpsProblem = require('./orderOfOps');
 const LinearEqnProblem = require('./linearEqn');
 
 
