@@ -1,9 +1,6 @@
-const IntegerProblem = require('./integers');
-const OrderOfOpsProblem = require('./orderOfOps');
-const LinearEqnProblem = require('./linearEqn');
-
-
-const Utils = require('../utils')
+const IntegerProblem = require("./integers");
+const OrderOfOpsProblem = require("./orderOfOps");
+const LinearEqnProblem = require("./linearEqn");
 
 const VALID_PROBLEM_TYPES = [
                                 IntegerProblem,
@@ -11,6 +8,11 @@ const VALID_PROBLEM_TYPES = [
                                 LinearEqnProblem
                             ];
 
+/** Problem class
+ * Constructs a problem of given problemType given args object
+ * Problem supplies these methods: answer, checkCorrect, latex, work, data
+ * Class method createProblem creates a new problem of given problemType 
+ */
 class Problem {
     constructor(problemType, args) {
         this.problemType = problemType;
@@ -22,7 +24,7 @@ class Problem {
         return this.problem.answer();
     }
 
-    checkCorrect(answer) {
+    checkCorrect(answer=null) {
         if (answer === null) return null;
         return this.problem.checkCorrect(answer);
     }
@@ -31,21 +33,23 @@ class Problem {
         return this.problem.latex();
     }
 
+    work() {
+        return this.problem.work();
+    }
+
     data() {
         return {
-            problemType: this.problem.constructor.name,
             args: this.args,
-            latex: this.latex(),
-            answer: this.answer()      
+            latex: this.latex()        
         }
     }
 
-    static createProblem(problemType, problemParams) {
+    static createProblem(problemType, probParams) {
         if(VALID_PROBLEM_TYPES.indexOf(problemType) === -1 ) {
-            throw new Error('Invalid Problem Type');
+            throw new Error("Invalid Problem Type");
         }
-        const probParams = problemParams || [];
-        const args = problemType.getArgs(...probParams);
+
+        const args = problemType.getArgs(probParams);
         return new Problem(problemType, args);
     }
 }

@@ -1,4 +1,4 @@
-/** Returns slope object.
+/** Returns a randomly generated slope object.
  * 
  * slope is {m, rise, run}
  * 
@@ -42,7 +42,7 @@
     return {m, rise, run};
 }
     
-/** Get a start value.
+/** Returns a randomly generated start value.
  * 
  * maxB: largest start value
  */
@@ -56,15 +56,14 @@ function getStart(maxB) {
     return b;
 }
 
-/** Get points given slope and yint of linear expression.
- */
+/** Find points given slope m and start value b of linear expression. */
 
- function getPoints(slope, yint) {
+ function findPoints(m, b) {
     const xCoords =  []; 
     const yCoords =  []; 
 
     for (let x = -10; x <= 10; x++) {
-        let y = slope * x + yint;
+        let y = m * x + b;
         if (y % 1 === 0 && Math.abs(y) <= 10) {
             xCoords.push(x);
             yCoords.push(y);
@@ -74,10 +73,12 @@ function getStart(maxB) {
     return [xCoords, yCoords];
 }
 
-/** Find slope given points
- */
+/** Find slope {m, rise, run} given points 
+ * 
+ * points is [[xCoords], [yCoords]] 
+ * */
 
- function findM(points) {
+ function findSlope(points) {
     const xCoords =  points[0]; 
     const yCoords =  points[1]; 
 
@@ -88,14 +89,16 @@ function getStart(maxB) {
     return {m, rise, run};
 }
 
-/** Find b given points
- */
+/** Find start value b given points 
+ *  
+ * points is [[xCoords], [yCoords]] 
+*/
 
  function findB(points) {
     const xCoords =  points[0]; 
     const yCoords =  points[1]; 
 
-    const slope = findM(points);
+    const slope = findSlope(points);
     const b = yCoords[0] - slope.m * xCoords[0];
 
     return b;
@@ -124,8 +127,8 @@ function isSimplifiedFraction(num, den) {
     return true;
 }
 
-/** Get the Latex Expression given m, rise, run, and b  */
-function getLatexExpression(m, rise, run, b) {
+/** Get the Latex expression given m, rise, run, and b  */
+function getLatex(m, rise, run, b) {
     let eq = "";
     let variable = "x";
 
@@ -165,4 +168,4 @@ function getLatexExpression(m, rise, run, b) {
 }
 
 
-module.exports = {getSlope, getStart, getPoints, findM, findB, getLatexExpression};
+module.exports = {getSlope, getStart, findPoints, findSlope, findB, getLatex};

@@ -1,4 +1,4 @@
-const Problem = require('./mathFuncs/problem');
+const Problem = require('./problem');
 const AdditionProblem = require('./mathFuncs/addition');
 const DivisionProblem = require('./mathFuncs/division');
 

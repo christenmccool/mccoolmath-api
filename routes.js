@@ -2,190 +2,72 @@
 
 const express = require("express");
 
-const { BadRequestError } = require("./expressError");
+const Problem = require("./mathFuncs/problem");
+const IntegerProblem = require("./mathFuncs/integers");
+const OrderOfOpsProblem = require("./mathFuncs/orderOfOps");
+const LinearEqnProblem = require("./mathFuncs/linearEqn");
+const { NotFoundError } = require("./expressError");
 
-const Problem = require('./mathFuncs/problem');
-const IntegerProblem = require('./mathFuncs/integers');
-const OrderOfOpsProblem = require('./mathFuncs/orderOfOps');
-const LinearEqnProblem = require('./mathFuncs/linearEqn');
-const Utils = require('./utils');
-
+const VALID_SKILLS = {
+    integers: IntegerProblem,
+    orderofops: OrderOfOpsProblem,
+    lineareqn: LinearEqnProblem
+}
 
 const router = new express.Router();
 
-/** GET /integerop  => { Problem }
- * 
- * returns Problem data
- *
- * Problem is {problemType, latex, args}
+/** GET /:skill  => { Problem }
+ * Returns Problem data
+ * Problem is {args, latex}
  */
-
- router.get("/integers", async function (req, res, next) {
-
-    let {type} = req.query;
-
-    if (!type || type==="all") {
-        type = Utils.getRandChoice(['add', 'sub', 'mult', 'div']);
-    } else {
-        const typeArr = type.split(",");     
-        type = Utils.getRandChoice(typeArr);
-    }
-
+router.get("/:skill", async function (req, res, next) {
     try {
-        const newProb = Problem.createProblem(IntegerProblem, [type]);
-        return res.json(newProb.data());
-    } catch (err) {
-        return next(err);
-    }
-});
-
-/** POST /integerop  => { status }
- * 
- * status is 'correct' or 'incorrect'
- */
-
-router.post("/integers", async function (req, res, next) {
-
-    const {problemType, args, answer, returnAnswer} = req.body;
-
-    try {
-        const newProb = new Problem(IntegerProblem, args);
-
-        const correct = newProb.checkCorrect(+answer);
-        
-        if (returnAnswer===true && (answer === null || correct)) {
-            return res.json({correctAnswer: newProb.answer(), status: correct ? 'correct':'incorrect'});
-        }
-
-        return res.json({status: correct ? 'correct':'incorrect'});
-
-    } catch (err) {
-        return next(err);
-    }
-});
-
-/** GET /orderofops  => { Problem }
- *
- * Problem is {problemType, latex, args}
- */
- router.get("/orderofops", async function (req, res, next) {
-    let {n} = req.query;
+        const {skill} = req.params;
+        if (!VALID_SKILLS[skill]) throw new NotFoundError;
     
-    if (!n) {
-        n = 4;
-    }
-
-    try {
-        const newProb = Problem.createProblem(OrderOfOpsProblem, [n]);
+        let options = req.query;
+        const newProb = Problem.createProblem(VALID_SKILLS[skill], options);
         return res.json(newProb.data());
     } catch (err) {
         return next(err);
     }
 });
 
-
-/** POST /orderofops  => { status }
+/** POST /:skill  {args, answer, returnAnswer} => { status, correctAnswer }
+ * Post problem arguments and user answer
  * 
- * status is 'correct' or 'incorrect'
+ * Returns status of "correct" or "incorrect"
+ * If returnAnswer is "always" or "ifCorrect" (for correct answer): returns correct answer and array of work 
  */
-
-router.post("/orderofops", async function (req, res, next) {
-
-    const {problemType, args, answer, returnAnswer} = req.body;
+ router.post("/:skill", async function (req, res, next) {
 
     try {
-        const newProb = new Problem(OrderOfOpsProblem, args);
+        const {skill} = req.params;
+        if (!VALID_SKILLS[skill]) throw new NotFoundError;
+        
+        const {args, answer, returnAnswer="noAns"} = req.body;
 
-        const correct = newProb.checkCorrect(+answer);
-
-        if (returnAnswer===true && (answer === null || correct)) {
-            return res.json({correctAnswer: newProb.answer(), status: correct ? 'correct':'incorrect'});
-        }
-
-        return res.json({status: correct ? 'correct':'incorrect'});
-
-    } catch (err) {
-        return next(err);
-    }
-});
-
-
-/** GET /lineareqn  => { Problem }
- * 
- * returns Problem data
- *
- * Problem is {problemType, latex, args}
- */
-
- router.get("/lineareqn", async function (req, res, next) {
-    let {type} = req.query;
-
-    if (!type) {
-        type = "graph"
-    }
-
-    try {
-        const newProb = Problem.createProblem(LinearEqnProblem, [type]);
-
-        return res.json(newProb.data());
-    } catch (err) {
-        return next(err);
-    }
-});
-
-/** POST /lineareqn  => { status }
- * 
- * status is 'correct' or 'incorrect'
- */
-
- router.post("/lineareqn", async function (req, res, next) {
-
-    const {problemType, args, answer, returnAnswer} = req.body;
-
-    try {
-        const newProb = new Problem(LinearEqnProblem, args);
+        const newProb = new Problem(VALID_SKILLS[skill], args);
 
         const correct = newProb.checkCorrect(answer);
-
-        if (returnAnswer===true && (answer === null || correct)) {
-            return res.json({correctAnswer: newProb.answer(), status: correct ? 'correct':'incorrect'})
+        let status = correct ? "correct" : "incorrect";
+        if ((answer === null || answer === undefined) && returnAnswer === "always") {
+            status = "showCorrect";
         }
+        
+        if (returnAnswer === "always" || (returnAnswer === "ifCorrect" && correct)) {
+            return res.json({
+                correctAnswer: newProb.answer(), 
+                work: newProb.work(), 
+                status
+            });
+        } 
 
-        return res.json({status: correct ? 'correct':'incorrect'});
-
+        return res.json({status});
     } catch (err) {
         return next(err);
     }
 });
-
-
-
-
-
-
-/** GET /lineareq  => { linearEquation }
- *
- * returns a Linear Equation object
- *
- * linearEquation is {m, rise, run, b, exp, eq}
- *
- */
-
-// router.get("/lineareq", async function (req, res, next) {
-//   try {
-//     const newEq = new LinearEquation(50,5,5);
-
-//     // return res.json({
-//     //   equation: newEq.eq,
-//     //   expression: newEq.exp,
-//     // });
-//     return res.json(newEq);
-//   } catch (err) {
-//     return next(err);
-//   }
-// });
-
-
 
 
 module.exports = router;
