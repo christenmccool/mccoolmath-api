@@ -92,7 +92,7 @@ function getLatex(nums, ops, showAsFrac=false) {
             nextTerm = `(${nums[i]})`;
         }
         if (ops[i-1] === "exp") {
-            nextTerm = `{${nums[i]}}`;
+            nextTerm = nums[i];
         }
         if ((ops[i-1] === "div" || ops[i] === "div") && showAsFrac) {
             nextTerm = `{${nums[i]}}`;
